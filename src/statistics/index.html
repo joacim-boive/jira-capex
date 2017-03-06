@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Review Statistics</title>
+
+    <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/loading.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../../bower_components/chart.js/dist/Chart.bundle.min.js"></script>
+    <script src="../../bower_components/RandomColor/dist/rcolor.min.js"></script>
+</head>
+<body>
+<h3 id="headline" class="animated visuallyhidden">Stats for last 100 pull requests</h3>
+<div id="loading">
+    <h1>Please wait...</h1>
+    <h2>We're chewing on it!</h2>
+    <div class="container">
+        <div class="item" id="pink">
+            <div class="chewing">
+                <div class="eye left"><span></span></div>
+                <div class="eye right"><span></span></div>
+                <div class="mounth"></div>
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+            </div>
+            <div class="shadow"></div>
+        </div>
+
+        <div class="item" id="orange">
+            <div class="chewing">
+                <div class="eye left"><span></span></div>
+                <div class="eye right"><span></span></div>
+                <div class="mounth"></div>
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+            </div>
+            <div class="shadow"></div>
+        </div>
+
+        <div class="item" id="blue">
+            <div class="chewing">
+                <div class="eye left"><span></span></div>
+                <div class="eye right"><span></span></div>
+                <div class="mounth"></div>
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+            </div>
+            <div class="shadow"></div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <canvas id="chartTotal"></canvas>
+    <canvas id="chartPeriod"></canvas>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>
