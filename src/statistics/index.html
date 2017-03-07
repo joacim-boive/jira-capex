@@ -13,7 +13,7 @@
 </head>
 <body>
 <h3 id="headline" class="animated visuallyhidden">JIRA Capex Report</h3>
-<div id="loading">
+<div id="loading" class="animated hide">
     <h1>Please wait...</h1>
     <h2>We're chewing on it!</h2>
     <div class="container">
@@ -62,10 +62,7 @@
         <span class="glyphicon glyphicon-calendar"></span>
     </span>
 <button id='doIt' type="button" class="btn btn-primary">Create Report</button>
-<div class="container-fluid">
-    <canvas id="chartTotal"></canvas>
-    <canvas id="chartPeriod"></canvas>
-</div>
+<div id="holder" class="animated"></div>
 <script src="js/script.js"></script>
 </body>
 </html>

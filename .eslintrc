@@ -7,6 +7,13 @@
   "globals": { //Specifying other globals that are exposed in the current project
     "chrome": 1
   },
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "script",
+    "ecmaFeatures": {
+      "impliedStrict": false
+    }
+  },
   "rules": {
     "strict": [2, "global"], //controls location of Use Strict Directives
     "valid-jsdoc": [1, {
