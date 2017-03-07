@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GitHub Review Statistics</title>
+    <title>JIRA Capex Report</title>
 
     <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../bower_components/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="css/loading.css">
     <link rel="stylesheet" href="css/style.css">
 
-    <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="../../bower_components/chart.js/dist/Chart.bundle.min.js"></script>
-    <script src="../../bower_components/RandomColor/dist/rcolor.min.js"></script>
+    <script src="../../bower_components/flatpickr/dist/flatpickr.min.js"></script>
 </head>
 <body>
-<h3 id="headline" class="animated visuallyhidden">Stats for last 100 pull requests</h3>
+<h3 id="headline" class="animated visuallyhidden">JIRA Capex Report</h3>
 <div id="loading">
     <h1>Please wait...</h1>
     <h2>We're chewing on it!</h2>
@@ -52,6 +51,17 @@
         </div>
     </div>
 </div>
+<span class="flatpickr">
+        <label for="dateFrom">From: </label>
+        <input id="dateFrom" placeholder="Pick a FROM date" data-input>
+        <span class="glyphicon glyphicon-calendar"></span>
+    </span>
+<span class="flatpickr">
+        <label for="dateTo">To: </label>
+        <input id="dateTo" placeholder="Pick a TO date" data-input>
+        <span class="glyphicon glyphicon-calendar"></span>
+    </span>
+<button id='doIt' type="button" class="btn btn-primary">Create Report</button>
 <div class="container-fluid">
     <canvas id="chartTotal"></canvas>
     <canvas id="chartPeriod"></canvas>
