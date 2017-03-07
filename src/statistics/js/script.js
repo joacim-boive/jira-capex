@@ -92,7 +92,7 @@
         let holder = document.getElementById('holder');
         let loading = document.getElementById('loading');
         let total = 0;
-        let html = '<table class="table table-striped table-bordered table-hover"><tr><th>ID</th><th>Summary</th><th>Status</th><th>User</th><th>Date</th><th>Hours</th></tr>';
+        let html = '<h3>Total hours for period: <span id="total"></span></h3><table class="table table-striped table-bordered table-hover"><tr><th>ID</th><th>Summary</th><th>Status</th><th>User</th><th>Date</th><th>Hours</th></tr>';
 
         for (let [key, value] of Object.entries(data)) {
             if (key === 'total') {
@@ -103,7 +103,7 @@
                     let thisDetails = '';
 
                     for (let log of data.data) {
-                        thisDetails += `${row}<td>${log.displayName}</td><td>${log.updated}</td><td>${log.timeSpentSeconds}</td></tr>`;
+                        thisDetails += `${row}<td>${log.displayName}</td><td>${log.updated}</td><td>${log.timeSpentSeconds/3600}</td></tr>`;
                     }
 
                     html += thisDetails;
@@ -112,12 +112,13 @@
         }
 
         html += '</tr></table>';
-
+debugger;
         holder.innerHTML = html;
+        document.getElementById('total').innerHTML = parseInt(data.total) / 3600;
 
         loading.classList.add('bounceOut');
         holder.classList.add('bounceIn');
-        holder.classList.remove('visuallyhidden');
+        holder.classList.remove('hide');
     };
 
     let getStorage = () => {
