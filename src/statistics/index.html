@@ -13,6 +13,18 @@
 </head>
 <body>
 <h3 id="headline" class="animated visuallyhidden">JIRA Capex Report</h3>
+<span class="flatpickr">
+        <label for="dateFrom">From: </label>
+        <input id="dateFrom" placeholder="Pick a FROM date" data-input>
+        <span class="glyphicon glyphicon-calendar"></span>
+    </span>
+<span class="flatpickr">
+        <label for="dateTo">To: </label>
+        <input id="dateTo" placeholder="Pick a TO date" data-input>
+        <span class="glyphicon glyphicon-calendar"></span>
+    </span>
+<button id="doIt" type="button" class="btn btn-primary">Create Report</button>
+<div id="holder" class="animated hide"></div>
 <div id="loading" class="animated hide">
     <h1>Please wait...</h1>
     <h2>We're chewing on it!</h2>
@@ -51,18 +63,6 @@
         </div>
     </div>
 </div>
-<span class="flatpickr">
-        <label for="dateFrom">From: </label>
-        <input id="dateFrom" placeholder="Pick a FROM date" data-input>
-        <span class="glyphicon glyphicon-calendar"></span>
-    </span>
-<span class="flatpickr">
-        <label for="dateTo">To: </label>
-        <input id="dateTo" placeholder="Pick a TO date" data-input>
-        <span class="glyphicon glyphicon-calendar"></span>
-    </span>
-<button id="doIt" type="button" class="btn btn-primary">Create Report</button>
-<div id="holder" class="animated hide"></div>
 <script src="js/script.js"></script>
 </body>
 </html>
