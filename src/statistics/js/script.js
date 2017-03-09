@@ -33,6 +33,10 @@
                 })
                 .then(jiras => {
 
+                    if(jiras.total === 1000){
+                        throw error('Possibly more then 1000 JIRAs returned - please refine your query for accurate results.');
+                    }
+
                     storage.fromDate = new Date(storage.fromDate);
                     storage.toDate = new Date(storage.toDate);
                     storage.report = {};
@@ -50,6 +54,13 @@
                         resolve(storage);
                     }, reason => {
                         debugger;
+                        notify({
+                            icon: 'glyphicon-exclamation-sign',
+                            type: 'danger',
+                            title: 'Huston! We have a problem!',
+                            message: reason.message + ' - Please try again!'
+                        });
+
                         console.log(reason);
                         reject(reason);
                     })
@@ -99,7 +110,7 @@
                         storage.report.issues[key].data.push({
                             'updated': log.updated.replace('T', ' ').split('.000')[0],
                             'displayName': log.updateAuthor.displayName,
-                            'timeSpentSeconds': log.timeSpentSeconds
+                            'timeSpentSeconds':log.timeSpentSeconds
                         })
                     }
                 }
@@ -127,7 +138,7 @@
                         let thisDetails = '';
 
                         for (let log of data.data) {
-                            thisDetails += `${row}<td>${log.displayName}</td><td>${log.updated}</td><td>${log.timeSpentSeconds / 3600}</td></tr>`;
+                            thisDetails += `${row}<td>${log.displayName}</td><td>${log.updated}</td><td>${(log.timeSpentSeconds / 3600).toFixed(2)}</td></tr>`;
                         }
 
                         html += thisDetails;
@@ -137,7 +148,7 @@
 
             html += '</tr></table>';
             holder.innerHTML = html;
-            document.getElementById('total').innerHTML = parseInt(data.total) / 3600;
+            document.getElementById('total').innerHTML = (parseInt(data.total) / 3600).toFixed(2);
 
             loading.classList.add('bounceOut');
             holder.classList.add('bounceIn');
