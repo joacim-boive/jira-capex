@@ -18,9 +18,9 @@
 
             let workLogDates = ` and worklogDate >= ${storage.fromDate} and worklogDate <= ${storage.toDate}`;
 
-            storage.jiraReview = storage.jql + workLogDates;
+            storage.jiraReview = (storage.jql + workLogDates).replace(/"/g, '\'');
 
-            fetch(`${storage.url}/rest/api/2/search?jql=${storage.jql + workLogDates}&maxResults=1000`, {
+            fetch(`${storage.url}/rest/api/2/search?jql=${storage.jiraReview}&maxResults=1000`, {
                 method: 'GET',
                 redirect: 'follow',
                 headers: headers
