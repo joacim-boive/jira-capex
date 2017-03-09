@@ -150,6 +150,26 @@
     let getStorage = () => {
         let loading = document.getElementById('loading');
         let holder = document.getElementById('holder');
+        let fromDate = document.getElementById('dateFrom').value;
+        let toDate = document.getElementById('dateTo').value;
+
+        if(fromDate === '' || toDate === ''){
+            return notify({
+                icon: 'glyphicon-exclamation-sign',
+                type: 'danger',
+                title: 'Huston! We have a problem!',
+                message: 'Both FROM & TO dates need to specified.'
+            });
+        }
+
+        if(toDate < fromDate){
+            return notify({
+                icon: 'glyphicon-exclamation-sign',
+                type: 'danger',
+                title: 'Huston! We have a problem!',
+                message: 'FROM date needs to be earlier then TO date'
+            });
+        }
 
         holder.classList.add('hide');
         holder.classList.remove('bounceIn');
