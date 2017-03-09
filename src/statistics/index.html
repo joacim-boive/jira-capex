@@ -10,17 +10,19 @@
     <link rel="stylesheet" href="css/style.css">
 
     <script src="../../bower_components/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../../bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.min.js"></script>
 </head>
 <body>
 <h3 id="headline" class="animated visuallyhidden">JIRA Capex Report</h3>
 <span class="flatpickr">
         <label for="dateFrom">From: </label>
-        <input id="dateFrom" placeholder="Pick a FROM date" data-input>
+        <input id="dateFrom" required="required" placeholder="Pick a FROM date" data-input>
         <span class="glyphicon glyphicon-calendar"></span>
     </span>
 <span class="flatpickr">
         <label for="dateTo">To: </label>
-        <input id="dateTo" placeholder="Pick a TO date" data-input>
+        <input id="dateTo" required="required" placeholder="Pick a TO date" data-input>
         <span class="glyphicon glyphicon-calendar"></span>
     </span>
 <button id="doIt" type="button" class="btn btn-primary">Create Report</button>

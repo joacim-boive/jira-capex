@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "bootstrap": "^3",
-    "flatpickr": "^2.4.3"
+    "flatpickr": "^2.4.3",
+    "remarkable-bootstrap-notify": "^3.1.3"
   }
 }
