@@ -32,11 +32,11 @@
                     return response.json()
                 })
                 .then(jiras => {
-
                     if(jiras.total === 1000){
                         throw error('Possibly more then 1000 JIRAs returned - please refine your query for accurate results.');
                     }
 
+                    storage.analyzedTotal = jiras.total;
                     storage.fromDate = new Date(storage.fromDate);
                     storage.toDate = new Date(storage.toDate);
                     storage.report = {};
@@ -204,7 +204,7 @@
                         icon: 'glyphicon-ok',
                         type: 'info',
                         title: 'Report is ready!',
-                        message: 'Remember that you can copy and paste the report into Excel if required.',
+                        message: `<div>I've analyzed ${storage.analyzedTotal} JIRAs in total.</div> Remember that you can copy and paste the report into Excel if required.`,
                         url: storage.url + '/issues/?jql=' + storage.jiraReview,
                     })
                 }, 1000)
