@@ -1,6 +1,6 @@
 {
   "name": "JIRA Capex Report",
-  "version": "0.0.0.2",
+  "version": "0.0.0.3",
   "manifest_version": 2,
   "description": "Creates a capex report based on your JIRA issues",
   "icons": {
