@@ -2,7 +2,6 @@
 {
 
     let headers = new Headers();
-    let lookups = [];
 
     let toBase64 = (input) => {
         return window.btoa(decodeURIComponent(encodeURIComponent(input)));
@@ -11,10 +10,12 @@
     let getLoggedHours = (storage) => {
         headers.append('Authorization', 'Basic ' + toBase64(storage.login + ':' + storage.password));
         headers.append('Content-Type', 'application/json');
+        storage.lookups = [];
 
         return new Promise((resolve, reject) => {
             storage.fromDate = document.getElementById('dateFrom').value;
             storage.toDate = document.getElementById('dateTo').value;
+            storage.lookups = [];
 
             let workLogDates = ` and worklogDate >= ${storage.fromDate} and worklogDate <= ${storage.toDate}`;
 
@@ -32,7 +33,7 @@
                     return response.json()
                 })
                 .then(jiras => {
-                    if(jiras.total === 1000){
+                    if (jiras.total === 1000) {
                         throw error('Possibly more then 1000 JIRAs returned - please refine your query for accurate results.');
                     }
 
@@ -45,11 +46,11 @@
 
                     for (let issue of jiras.issues) {
                         if (issue.fields.issuetype.subtask === false) {
-                            lookups.push(getDetails(issue.self, storage));
+                            storage.lookups.push(getDetails(issue.self, storage));
                         }
                     }
 
-                    Promise.all(lookups).then(() => {
+                    Promise.all(storage.lookups).then(() => {
                         console.table(storage.report);
                         resolve(storage);
                     }, reason => {
@@ -65,7 +66,7 @@
                         reject(reason);
                     })
                 })
-                .catch(function(err) {
+                .catch(function (err) {
                     notify({
                         icon: 'glyphicon-exclamation-sign',
                         type: 'danger',
@@ -79,46 +80,69 @@
     };
 
     let getDetails = (url, storage) => {
-        return fetch(url, {
-            method: 'GET',
-            redirect: 'follow',
-            headers: headers
-        }).then(response => {
-            return response.json()
-        })
-            .then(issueDetails => {
-                let thisDate = '';
-                let key = issueDetails.key;
+        return new Promise((resolve, reject) => {
+            let lookups = [];
 
-                for (let log of issueDetails.fields.worklog.worklogs) {
-                    thisDate = new Date(log.updated.split('T')[0]);
+            lookups.push(fetch(url, {
+                method: 'GET',
+                redirect: 'follow',
+                headers: headers
+            }).then(response => {
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json()
+            })
+                .then(issueDetails => {
+                    let thisDate = '';
+                    let key = issueDetails.key;
 
-                    if (thisDate >= storage.fromDate && thisDate <= storage.toDate) {
-                        if (!storage.report.issues[key]) {
-                            storage.report.issues[key] = {};
-                            storage.report.issues[key].details = {};
-                            storage.report.issues[key].data = [];
+
+                    for (let log of issueDetails.fields.worklog.worklogs) {
+                        thisDate = new Date(log.updated.split('T')[0]);
+
+                        if (thisDate >= storage.fromDate && thisDate <= storage.toDate) {
+                            if (!storage.report.issues[key]) {
+                                storage.report.issues[key] = {};
+                                storage.report.issues[key].details = {};
+                                storage.report.issues[key].data = [];
+                            }
+
+                            storage.report.issues[key].details.key = key;
+                            storage.report.issues[key].details.type = issueDetails.fields.issuetype.name;
+                            storage.report.issues[key].details.status = issueDetails.fields.status.name;
+                            storage.report.issues[key].details.summary = issueDetails.fields.summary;
+
+                            storage.report.total += log.timeSpentSeconds;
+
+                            storage.report.issues[key].data.push({
+                                'updated': log.updated.replace('T', ' ').split('.000')[0],
+                                'displayName': log.updateAuthor.displayName,
+                                'timeSpentSeconds': log.timeSpentSeconds
+                            })
                         }
-
-                        storage.report.issues[key].details.key = key;
-                        storage.report.issues[key].details.type = issueDetails.fields.issuetype.name;
-                        storage.report.issues[key].details.status = issueDetails.fields.status.name;
-                        storage.report.issues[key].details.summary = issueDetails.fields.summary;
-
-                        storage.report.total += log.timeSpentSeconds;
-
-                        storage.report.issues[key].data.push({
-                            'updated': log.updated.replace('T', ' ').split('.000')[0],
-                            'displayName': log.updateAuthor.displayName,
-                            'timeSpentSeconds':log.timeSpentSeconds
-                        })
                     }
-                }
 
-                for (let task of issueDetails.fields.subtasks) {
-                    lookups.push(getDetails(task.self, storage));
-                }
-            });
+                    for (let task of issueDetails.fields.subtasks) {
+                        lookups.push(getDetails(task.self, storage));
+                    }
+
+                    Promise.all(lookups).then(() => {
+                        resolve();
+                    })
+
+                })
+                .catch(function (err) {
+                    notify({
+                        icon: 'glyphicon-exclamation-sign',
+                        type: 'danger',
+                        title: 'Huston! We have a problem!',
+                        message: err.message + ' - Please try again!'
+                    });
+
+                    console.log(err);
+                }))
+        })
     };
 
     let createReport = (storage) => {
@@ -164,7 +188,7 @@
         let fromDate = document.getElementById('dateFrom').value;
         let toDate = document.getElementById('dateTo').value;
 
-        if(fromDate === '' || toDate === ''){
+        if (fromDate === '' || toDate === '') {
             return notify({
                 icon: 'glyphicon-exclamation-sign',
                 type: 'danger',
@@ -173,7 +197,7 @@
             });
         }
 
-        if(toDate < fromDate){
+        if (toDate < fromDate) {
             return notify({
                 icon: 'glyphicon-exclamation-sign',
                 type: 'danger',
@@ -189,7 +213,6 @@
         loading.classList.remove('hide');
 
         headers = new Headers();
-        lookups = [];
 
         chrome.storage.local.get({
             'url': '',
@@ -197,23 +220,24 @@
             'password': '',
             'jql': ''
         }, function (storage) {
-            getLoggedHours(storage).then(data => createReport(data).then(() => {
+            getLoggedHours(storage)
+                .then(data => createReport(data).then(() => {
 
-                setTimeout(() =>{
-                    notify({
-                        icon: 'glyphicon-ok',
-                        type: 'info',
-                        title: 'Report is ready!',
-                        message: `<div>I've analyzed ${storage.analyzedTotal} JIRAs in total.</div> Remember that you can copy and paste the report into Excel if required.`,
-                        url: storage.url + '/issues/?jql=' + storage.jiraReview,
-                    })
-                }, 1000)
+                    setTimeout(() => {
+                        notify({
+                            icon: 'glyphicon-ok',
+                            type: 'info',
+                            title: 'Report is ready!',
+                            message: `<div>I've analyzed ${storage.analyzedTotal} JIRAs in total.</div> Remember that you can copy and paste the report into Excel if required.`,
+                            url: storage.url + '/issues/?jql=' + storage.jiraReview,
+                        })
+                    }, 1000)
 
-            }));
+                }));
         })
     };
 
-    let notify = (config) =>{
+    let notify = (config) => {
         $.notify({
             // options
             icon: 'glyphicon ' + config.icon,
