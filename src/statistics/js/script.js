@@ -16,6 +16,7 @@
             storage.fromDate = document.getElementById('dateFrom').value;
             storage.toDate = document.getElementById('dateTo').value;
             storage.lookups = [];
+            storage.users = [];
 
             let workLogDates = ` and worklogDate >= ${storage.fromDate} and worklogDate <= ${storage.toDate}`;
 
@@ -114,6 +115,7 @@
                             storage.report.issues[key].details.summary = issueDetails.fields.summary;
 
                             storage.report.total += log.timeSpentSeconds;
+                            storage.users.push(log.updateAuthor.displayName);
 
                             storage.report.issues[key].data.push({
                                 'updated': log.updated.replace('T', ' ').split('.000')[0],
@@ -152,6 +154,17 @@
             let loading = document.getElementById('loading');
             let total = 0;
             let html = '<h3>Total hours for period: <span id="total"></span></h3><table id="report" class="table table-striped table-bordered table-hover"><tr><th>ID</th><th>Type</th><th>Summary</th><th>Status</th><th>User</th><th>Date</th><th>Hours</th></tr>';
+            let users = null;
+            let htmlUsers = '<ul>';
+
+            users = new Set(storage.users);
+
+            for(let user of users){
+                htmlUsers+= `<li><label><input type="checkbox" checked id="${encodeURIComponent(user)}">${user}</label></li>`;
+            }
+            htmlUsers+='</ul>';
+
+            document.getElementById('users').innerHTML = htmlUsers;
 
             for (let [key, value] of Object.entries(data)) {
                 if (key === 'total') {
