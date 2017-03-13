@@ -15,6 +15,31 @@ form {
     margin-top: 2%;
 }
 
+ul{
+    column-count: 4;
+    list-style: none;
+}
+
+#users label{
+    font-weight: 500;
+    margin-bottom: 0;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+input[type="checkbox"]{
+    margin: 0 4px 0 0;
+}
+
+.show-row{
+    display: table-row;
+}
+.hide-row{
+    display: none;
+}
+
 td:first-child{
     white-space: nowrap;
 }
