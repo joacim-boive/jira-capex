@@ -16,6 +16,7 @@
             storage.fromDate = document.getElementById('dateFrom').value;
             storage.toDate = document.getElementById('dateTo').value;
             storage.lookups = [];
+            storage.users = [];
 
             let workLogDates = ` and worklogDate >= ${storage.fromDate} and worklogDate <= ${storage.toDate}`;
 
@@ -96,6 +97,7 @@
                 .then(issueDetails => {
                     let thisDate = '';
                     let key = issueDetails.key;
+                    let user = '';
 
 
                     for (let log of issueDetails.fields.worklog.worklogs) {
@@ -109,11 +111,22 @@
                             }
 
                             storage.report.issues[key].details.key = key;
+                            storage.report.issues[key].details.author = log.updateAuthor.displayName;
                             storage.report.issues[key].details.type = issueDetails.fields.issuetype.name;
                             storage.report.issues[key].details.status = issueDetails.fields.status.name;
                             storage.report.issues[key].details.summary = issueDetails.fields.summary;
 
-                            storage.report.total += log.timeSpentSeconds;
+                            user = encodeURIComponent(log.updateAuthor.displayName);
+
+                            if(typeof storage[user] !== 'undefined'){
+                                if(storage[user] === true){
+                                    storage.report.total += log.timeSpentSeconds;
+                                }
+                            }else{ //No selection made for user, so assume it should be included
+                                storage.report.total += log.timeSpentSeconds;
+                            }
+
+                            storage.users.push(log.updateAuthor.displayName);
 
                             storage.report.issues[key].data.push({
                                 'updated': log.updated.replace('T', ' ').split('.000')[0],
@@ -152,20 +165,43 @@
             let loading = document.getElementById('loading');
             let total = 0;
             let html = '<h3>Total hours for period: <span id="total"></span></h3><table id="report" class="table table-striped table-bordered table-hover"><tr><th>ID</th><th>Type</th><th>Summary</th><th>Status</th><th>User</th><th>Date</th><th>Hours</th></tr>';
+            let users = null;
+            let user = '';
+            let htmlUsers = '<ul>';
+            let isHidden = false;
+
+            users = new Set(storage.users);
+
+            for (let user of users) {
+                htmlUsers += `<li><label><input type="checkbox" checked id="${encodeURIComponent(user)}">${user}</label></li>`;
+            }
+            htmlUsers += '</ul>';
+
+            document.getElementById('users').innerHTML = htmlUsers;
 
             for (let [key, value] of Object.entries(data)) {
                 if (key === 'total') {
                     total = value;
                 } else {
                     for (let [key, data] of Object.entries(value)) {
-                        const row = `<tr><td><a href="${storage.url}/browse/${key}" target="_blank" rel="noopener">${key}</a></td><td>${data.details.type}</td><td>${data.details.summary}</td><td>${data.details.status}</td>`;
-                        let thisDetails = '';
+                        let row = '';
+                        let hours = 0;
 
                         for (let log of data.data) {
-                            thisDetails += `${row}<td>${log.displayName}</td><td>${log.updated}</td><td>${(log.timeSpentSeconds / 3600).toFixed(2)}</td></tr>`;
+                            isHidden = false;
+                            user = encodeURIComponent(log.displayName);
+
+                            if(typeof storage[user] !== 'undefined'){
+                                isHidden = storage[user] !== true;
+                            }
+
+                            hours = (log.timeSpentSeconds / 3600).toFixed(2);
+
+                            row += `<tr ${(isHidden ? 'class="hide-row"' : '')} data-user="${encodeURIComponent(log.displayName)}"><td><a href="${storage.url}/browse/${key}" target="_blank" rel="noopener">${key}</a></td><td>${data.details.type}</td><td>${data.details.summary}</td><td>${data.details.status}</td>`;
+                            row += `<td>${log.displayName}</td><td>${log.updated}</td><td data-hours="${hours}">${hours}</td></tr>`;
                         }
 
-                        html += thisDetails;
+                        html += row;
                     }
                 }
             }
@@ -214,14 +250,20 @@
 
         headers = new Headers();
 
-        chrome.storage.local.get({
-            'url': '',
-            'login': '',
-            'password': '',
-            'jql': ''
-        }, function (storage) {
+        chrome.storage.local.get(null, function (storage) {
             getLoggedHours(storage)
                 .then(data => createReport(data).then(() => {
+                    let check = null;
+
+                    for (let [key, isChecked] of Object.entries(storage)) {
+                        if(key.indexOf('%20') > -1){
+                            check = document.getElementById(key);
+
+                            if(check){
+                                check.checked = isChecked;
+                            }
+                        }
+                    }
 
                     setTimeout(() => {
                         notify({
@@ -235,6 +277,49 @@
 
                 }));
         })
+    };
+
+    let getUsers = () => {
+        let users = document.querySelectorAll('#users input[type="checkbox"]:checked');
+        let thisUser = event.target;
+        let rows = document.querySelectorAll(`tr[data-user="${thisUser.id}"]`);
+        let data = {};
+        let isVisible = thisUser.checked;
+        let total = 0;
+
+        for (let row of rows) {
+            if (isVisible) {
+                if (row.classList.contains('hide-row')) {
+                    row.classList.remove('hide-row');
+                }
+
+                if (!row.classList.contains('show-row')) {
+                    row.classList.add('show-row');
+                }
+            }else{
+                if (row.classList.contains('show-row')) {
+                    row.classList.remove('show-row');
+                }
+
+                if (!row.classList.contains('hide-row')) {
+                    row.classList.add('hide-row');
+                }
+            }
+        }
+
+        document.querySelectorAll('tr:not(.hide-row) td[data-hours]').forEach((td) => {
+            total += parseFloat(td.dataset.hours);
+        });
+
+        document.getElementById('total').innerText = total;
+
+        for (let user of users) {
+            data[user.id] = user.checked;
+        }
+
+        data[thisUser.id] = thisUser.checked; //Store the current change as well.
+
+        chrome.storage.local.set(data);
     };
 
     let notify = (config) => {
@@ -301,6 +386,7 @@
         });
 
         document.getElementById('doIt').addEventListener('click', getStorage);
+        document.getElementById('users').addEventListener('change', getUsers);
 
     };
 
