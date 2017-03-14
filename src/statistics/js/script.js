@@ -97,6 +97,7 @@
                 .then(issueDetails => {
                     let thisDate = '';
                     let key = issueDetails.key;
+                    let user = '';
 
 
                     for (let log of issueDetails.fields.worklog.worklogs) {
@@ -115,7 +116,16 @@
                             storage.report.issues[key].details.status = issueDetails.fields.status.name;
                             storage.report.issues[key].details.summary = issueDetails.fields.summary;
 
-                            storage.report.total += log.timeSpentSeconds;
+                            user = encodeURIComponent(log.updateAuthor.displayName);
+
+                            if(typeof storage[user] !== 'undefined'){
+                                if(storage[user] === true){
+                                    storage.report.total += log.timeSpentSeconds;
+                                }
+                            }else{ //No selection made for user, so assume it should be included
+                                storage.report.total += log.timeSpentSeconds;
+                            }
+
                             storage.users.push(log.updateAuthor.displayName);
 
                             storage.report.issues[key].data.push({
