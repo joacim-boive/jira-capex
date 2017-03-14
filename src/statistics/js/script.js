@@ -170,7 +170,7 @@
             let htmlUsers = '<ul>';
             let isHidden = false;
 
-            users = new Set(storage.users);
+            users = [...(new Set(storage.users))].sort();
 
             for (let user of users) {
                 htmlUsers += `<li><label><input type="checkbox" checked id="${encodeURIComponent(user)}">${user}</label></li>`;
