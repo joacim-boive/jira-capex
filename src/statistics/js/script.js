@@ -18,9 +18,13 @@
             storage.lookups = [];
             storage.users = [];
 
-            let workLogDates = ` and worklogDate >= ${storage.fromDate} and worklogDate <= ${storage.toDate}`;
+            // let workLogDates = ` and worklogDate >= ${storage.fromDate} and worklogDate <= ${storage.toDate}`;
 
-            storage.jiraReview = (storage.jql + workLogDates).replace(/"/g, '\'');
+            //To get all relevant JIRAs, we currently need to get all that have been updated from the starting date.
+            //This is because we can't search for sub-tasks that are in epics, since it's the parent that's in the epic.
+            //The parent gets it's updateDate updated when a sub-task is added or modified. But that also means that the updatedDate can be later then the period we're looking for
+            //That's why we need to get all from the periods start date...
+            storage.jiraReview = (storage.jql + ' and updatedDate >= ' + storage.fromDate).replace(/"/g, '\'');
 
             fetch(`${storage.url}/rest/api/2/search?jql=${storage.jiraReview}&maxResults=1000`, {
                 method: 'GET',
